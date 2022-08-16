@@ -1,15 +1,21 @@
-//Install express server
 const express = require("express");
-const path = require("path");
-
 const app = express();
+const path = require("path");
+const fs = require("fs");
 
-// Serve only the static files form the dist directory
-app.use(express.static("./dist/TODO-Angular"));
+const port = process.env.NODE_PORT || 3000;
 
-app.get("/*", (req, res) =>
-  res.sendFile("index.html", { root: "dist/TODO-Angular/" })
-);
+const root = path.join(__dirname, "dist", "TODO-Angular");
 
-// Start the app by listening on the default Heroku port
-app.listen(process.env.PORT || 8080);
+app.get("*", function (req, res) {
+  fs.stat(root + req.path, function (err) {
+    if (err) {
+      res.sendFile("index.html", { root });
+    } else {
+      res.sendFile(req.path, { root });
+    }
+  });
+});
+
+app.listen(port);
+console.log("Listening on port " + port);
